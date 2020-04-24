@@ -17,18 +17,22 @@
 	export default {
 	  name: "Swiper",
     props: {
+	    //切换间隔时间
       interval: {
 		    type: Number,
         default: 3000
       },
+      //多久后开始轮播
       animDuration: {
 		    type: Number,
         default: 300
       },
+      //拖动多少的图片距离就切换到下一张图片
       moveRatio: {
         type: Number,
         default: 0.25
       },
+      //是否显示轮播图的指示第几张图片点
       showIndicator: {
         type: Boolean,
         default: true
