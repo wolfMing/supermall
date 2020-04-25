@@ -3,14 +3,18 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
-    <home-swiper :banners="banners"></home-swiper>
-    <recommend-view :recommends="recommends"></recommend-view>
-    <feature-view></feature-view>
-    <tab-control class="tab-control"
-                 :titles="['流行','新款','精选']"
-                 @tabClick="tabClick"
-    ></tab-control>
-    <goods-list :goods="showGoods"></goods-list>
+    <better-scroll class="content" ref="betterScroll">
+      <home-swiper :banners="banners"></home-swiper>
+      <recommend-view :recommends="recommends"></recommend-view>
+      <feature-view></feature-view>
+      <tab-control class="tab-control"
+                   :titles="['流行','新款','精选']"
+                   @tabClick="tabClick"
+      ></tab-control>
+      <goods-list :goods="showGoods"></goods-list>
+    </better-scroll>
+
+    <back-top @click.native="backClick"></back-top>
   </div>
 </template>
 
@@ -19,9 +23,11 @@
   import RecommendView from './childrenComps/RecommendView'
   import FeatureView from './childrenComps/FeatureView'
 
+  import BetterScroll from 'components/common/betterscroll/BetterScroll'
   import NavBar from 'components/common/navbar/NavBar'
   import TabControl from 'components/content/tabControl/TabControl'
   import GoodsList from "../../components/content/goods/GoodsList";
+  import BackTop from "components/content/backtop/BackTop";
 
   import {getHomeMultidata,getHomeGoods} from "../../network/home"
 
@@ -31,9 +37,12 @@
       HomeSwiper,
       RecommendView,
       FeatureView,
+
       NavBar,
       TabControl,
+      BetterScroll,
       GoodsList,
+      BackTop
     },
     data() {
       return {
@@ -77,6 +86,10 @@
             break
         }
       },
+      backClick() {
+        //ref:如果是绑定在组件中的，那么通过this.$refs.refname获取到的是一个组件对象
+        this.$refs.betterScroll.scrollTo(0,0,700)
+      },
       /**
        * 网络请求相关方法
        */
@@ -103,7 +116,12 @@
 <style scoped>
   #home {
     padding-top: 44px;
+    height: 100vh;
+    position: relative;
   }
+  /*#home {*/
+  /*  height: 100vh;*/
+  /*}*/
   .home-nav {
     background-color: var(--color-tint);
     color: white;
@@ -121,4 +139,16 @@
     top: 44px;
     z-index: 9;
   }
+  .content{
+    position: absolute;
+    top: 44px;
+    bottom: 49px;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+  }
+  /*.content {*/
+  /*  height: calc(100% - 44px - 49px);*/
+  /*  margin-top: 44px;*/
+  /*}*/
 </style>
