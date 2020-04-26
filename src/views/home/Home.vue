@@ -3,7 +3,13 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
-    <better-scroll class="content" ref="betterScroll">
+    <better-scroll class="content"
+                   ref="betterScroll"
+                   :probe-prop="3"
+                   :pull-up-load="true"
+                   @scroll="contentScroll"
+                   @pullingUp="loadMore"
+    >
       <home-swiper :banners="banners"></home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
@@ -14,7 +20,8 @@
       <goods-list :goods="showGoods"></goods-list>
     </better-scroll>
 
-    <back-top @click.native="backClick"></back-top>
+    <!--组件上要监听原生事件，要使用native-->
+    <back-top @click.native="backClick" v-show="backTopIsShow"></back-top>
   </div>
 </template>
 
@@ -54,6 +61,7 @@
           'sell': {page: 0, list: []},
         },
         currentType: 'pop',
+        backTopIsShow: false
       }
     },
     computed: {
@@ -68,11 +76,28 @@
       this.getHomeGoods('pop')
       this.getHomeGoods('new')
       this.getHomeGoods('sell')
+
+    },
+    mounted() {
+      const refresh =  this.debounce(this.$refs.betterScroll.refresh,20)
+      this.$bus.$on('itemImageLoad',() => {
+        refresh()
+      })
     },
     methods: {
       /**
        * 事件监听相关方法
        */
+      //防抖函数
+      debounce(func,delay) {
+        let timer = null;
+        return function (...args) {
+          if (timer) clearTimeout(timer)
+          timer = setTimeout(() => {
+            func.apply(this,args)
+          },delay)
+        }
+      },
       tabClick(index) {
         switch (index) {
           case 0:
@@ -90,12 +115,18 @@
         //ref:如果是绑定在组件中的，那么通过this.$refs.refname获取到的是一个组件对象
         this.$refs.betterScroll.scrollTo(0,0,700)
       },
+      contentScroll(position) {
+        this.backTopIsShow = (-position.y) > 1000
+        // console.log(position);
+      },
+      loadMore() {
+        this.getHomeGoods(this.currentType)
+      },
       /**
        * 网络请求相关方法
        */
       getHomeMultidata() {
         getHomeMultidata().then(res => {
-          // console.log(res);
           this.banners = res.data.banner.list;
           this.recommends = res.data.recommend.list;
         })
@@ -103,10 +134,10 @@
       getHomeGoods(type) {
         const page = this.goods[type].page + 1
         getHomeGoods(type, page).then(res => {
-          console.log(res);
           this.goods[type].list.push(...res.data.list)
-          console.log(this.goods[type].list);
-          // this.goods[type].page++
+          this.goods[type].page++
+
+          // this.$refs.betterScroll.finishPullUp
         })
       }
     }

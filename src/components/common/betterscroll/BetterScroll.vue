@@ -32,30 +32,40 @@
         this.$nextTick(() => {
           this.scroll = new BScroll(this.$refs.wrapper,{
             /**
-             * prototype: 0,1 没啥效果
+             * prototype: 0,1 没啥效果,什么都不监听
              * 为2时，只能监听到手指在屏幕上移动时的位置，松手后的惯性位移无法监听
              * 为3时，只要发生位移就会监听到位置
              */
             probeType: this.probeType,
-            pullUpLoad: true
+            pullUpLoad: this.pullUpLoad,
+            click: true,
           })
-
+          //监听滚动的位置
           this.scroll.on('scroll',position => {
             // console.log(position);
+            this.$emit('scroll',position)
           })
-
-          this.scroll.on('pullUpLoad', () => {
+          //上拉加载
+          this.scroll.on('pullingUp', () => {
             console.log('加载更多');
-
-            setTimeout(() => {
-              this.scroll.finishPullDown()
-            },3000)
+            this.$emit('pullingUp')
+          })
+        //  下拉刷新
+          this.scroll.on('pullingDown',() => {
+            console.log("下拉刷新");
+            this.$emit('pullingDown')
           })
         })
       },
       methods: {
         scrollTo(x, y, time=500) {
-          this.scroll.scrollTo(x, y, time)
+          this.scroll && this.scroll.scrollTo(x, y, time)
+        },
+        // finishPullUp() {
+        //   this.scroll.finishPullUp()
+        // },
+        refresh() {
+          this.scroll && this.scroll.refresh()
         }
       }
     }
@@ -64,7 +74,7 @@
 <style scoped>
   .wrapper {
     /*height: 300px;*/
-    background-color: pink;
+    background-color: #ffffff;
     overflow: hidden;
     /*overflow-y: scroll;*/
   }
