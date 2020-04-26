@@ -41,29 +41,30 @@
             click: true,
           })
           //监听滚动的位置
-          this.scroll.on('scroll',position => {
-            // console.log(position);
-            this.$emit('scroll',position)
-          })
+          if (this.probeType === 2 || this.probeType === 3) {
+            this.scroll.on('scroll',position => {
+              this.$emit('scroll',position)
+            })
+          }
           //上拉加载
-          this.scroll.on('pullingUp', () => {
-            console.log('加载更多');
-            this.$emit('pullingUp')
-          })
+          if (this.pullUpLoad) {
+            this.scroll.on('pullingUp', () => {
+              this.$emit('pullingUp')
+            })
+          }
         //  下拉刷新
-          this.scroll.on('pullingDown',() => {
-            console.log("下拉刷新");
-            this.$emit('pullingDown')
-          })
+        //   this.scroll.on('pullingDown',() => {
+        //     this.$emit('pullingDown')
+        //   })
         })
       },
       methods: {
         scrollTo(x, y, time=500) {
           this.scroll && this.scroll.scrollTo(x, y, time)
         },
-        // finishPullUp() {
-        //   this.scroll.finishPullUp()
-        // },
+        finishPullUp() {
+          this.scroll && this.scroll.finishPullUp()
+        },
         refresh() {
           this.scroll && this.scroll.refresh()
         }
