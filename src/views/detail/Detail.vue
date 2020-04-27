@@ -7,6 +7,7 @@
       <detail-shop-info :shop="shop"></detail-shop-info>
       <detail-images-info :imagesInfo="imagesInfo" @imageLoad="imageLoad"></detail-images-info>
       <detail-param-info :paramInfo="paramInfo"></detail-param-info>
+      <detail-comment-info :commentInfo="commentInfo"></detail-comment-info>
     </better-scroll>
   </div>
 </template>
@@ -18,6 +19,7 @@
   import DetailShopInfo from './childComps/DetailShopInfo'
   import DetailImagesInfo from './childComps/DetailImagesInfo'
   import DetailParamInfo from './childComps/DetailParamInfo'
+  import DetailCommentInfo from './childComps/DetailCommenntInfo'
 
   import BetterScroll from 'components/common/betterscroll/BetterScroll'
 
@@ -32,7 +34,8 @@
       DetailShopInfo,
       BetterScroll,
       DetailImagesInfo,
-      DetailParamInfo
+      DetailParamInfo,
+      DetailCommentInfo
     },
     data() {
       return {
@@ -43,6 +46,7 @@
         shop: {},
         imagesInfo: {},
         paramInfo: {},
+        commentInfo: {},
       }
     },
     created() {
@@ -62,6 +66,8 @@
         this.imagesInfo = data.detailInfo
         //5.保存商品的参数信息
         this.paramInfo = new GoodsParam(data.itemParams.info,data.itemParams.rule)
+        //6.保存评论信息
+        this.commentInfo = data.rate.list[0]
       })
     },
     methods: {
@@ -79,7 +85,7 @@
     background-color: #fff;
     height: 100vh;
   }
-  
+
   .detail-nav {
     position: relative;
     z-index: 9;
