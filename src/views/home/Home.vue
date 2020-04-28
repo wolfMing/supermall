@@ -43,7 +43,7 @@
   import BackTop from "components/content/backtop/BackTop";
 
   import {getHomeMultidata,getHomeGoods} from "../../network/home"
-  import {debounce} from 'common/utils.js'
+  import {itemListener} from "common/mixin";
 
   export default {
     name: "home",
@@ -58,6 +58,7 @@
       GoodsList,
       BackTop
     },
+    mixins: [itemListener],
     data() {
       return {
         banners: [],
@@ -71,7 +72,8 @@
         backTopIsShow: false,
         tabOffsetTop: 0,
         isTabFixed: false,
-        saveY: 0
+        saveY: 0,
+        // itemImgListener: null,
       }
     },
     computed: {
@@ -79,12 +81,18 @@
         return this.goods[this.currentType].list
       }
     },
+    //被keep-alive缓存的组件激活时调用
     activated(){
-      this.$refs.betterScroll.scrollTo(0, this.saveY, 0);
+      // console.log('active---'+this.saveY);
       this.$refs.betterScroll.refresh()
+      this.$refs.betterScroll.scrollTo(0,this.saveY,0);
     },
+    //被keep-alive缓存的组件停用时调用
     deactivated() {
-      this.saveY = -this.$refs.betterScroll.getScrollY()
+      //保存滚动的位置
+      this.saveY = this.$refs.betterScroll.getScrollY()
+      //  取消全局事件的监听
+      this.$bus.$off('itemImgLoad',this.itemImgListener)
     },
     created() {
     //  1.请求多个数据
@@ -96,11 +104,7 @@
 
     },
     mounted() {
-      //1.图片加载完成的事件监听
-      const refresh =  debounce(this.$refs.betterScroll.refresh,20)
-      this.$bus.$on('itemImageLoad',() => {
-        refresh()
-      })
+
     },
     methods: {
       /**

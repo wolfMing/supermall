@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item" @click="itemClick">
-    <img :src="goodsItem.show.img" alt="" @load="imgUpload">
+    <img :src="showImages" alt="" @load="imgUpload">
     <div class="goods-info">
       <p>{{goodsItem.title}}</p>
       <span class="price">{{goodsItem.price}}</span>
@@ -20,9 +20,21 @@
             }
           }
       },
+      computed: {
+        showImages() {
+          return this.goodsItem.image || this.goodsItem.show.img
+        }
+      },
       methods: {
         imgUpload() {
           this.$bus.$emit('itemImageLoad')
+          //还可以根据路由来监听图片加载完 的回调方法
+          // if (this.$route.path.indexOf('/home')) {
+          //   this.$bus.$emit('homeItemImageLoad')
+          // }else if (this.$route.path.indexOf('/detail')) {
+          //   this.$bus.$emit('detailItemImageLoad')
+          // }
+
         },
         itemClick() {
           this.$router.push('./detail/' + this.goodsItem.iid)

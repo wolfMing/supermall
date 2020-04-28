@@ -34,9 +34,12 @@
     },
     methods: {
       imgLoad() {
-        if (++this.counter === this.imagesLength) {
-          this.$emit('imageLoad')
-        }
+        //方法1： 图片全加载完后在执行方法
+        // if (++this.counter === this.imagesLength) {
+        //   this.$emit('imageLoad')
+        // }
+      //  方法2；每加载完一张图片执行一次方法，最后使用防抖方法
+        this.$emit('imageLoad')
       }
     },
     watch: {

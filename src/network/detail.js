@@ -8,7 +8,7 @@ export function getDetail(iid) {
     }
   }).catch(err => err)
 }
-
+//评论数据
 export function getRecommend() {
   return request({
     url: '/recommend'
