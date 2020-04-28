@@ -1,6 +1,6 @@
 <template>
   <div id="detial">
-    <detail-nav-bar class="detail-nav" @titleClick="titleClick"></detail-nav-bar>
+    <detail-nav-bar class="detail-nav" ref="detailnav" @titleClick="titleClick"></detail-nav-bar>
     <better-scroll class="content" ref="betterScroll"
                   :probeType="3" @scroll="contentScroll">
       <detail-swiper :topImages="topImages"></detail-swiper>
@@ -11,6 +11,7 @@
       <detail-comment-info :commentInfo="commentInfo" ref="comment"></detail-comment-info>
       <goods-list :goods="recommends" ref="recommend"></goods-list>
     </better-scroll>
+    <detail-bottom-bar></detail-bottom-bar>
   </div>
 </template>
 
@@ -22,6 +23,7 @@
   import DetailImagesInfo from './childComps/DetailImagesInfo'
   import DetailParamInfo from './childComps/DetailParamInfo'
   import DetailCommentInfo from './childComps/DetailCommenntInfo'
+  import DetailBottomBar from "./childComps/DetailBottomBar";
 
   import BetterScroll from 'components/common/betterscroll/BetterScroll'
   import GoodsList from 'components/content/goods/GoodsList'
@@ -41,6 +43,7 @@
       DetailImagesInfo,
       DetailParamInfo,
       DetailCommentInfo,
+      DetailBottomBar,
       GoodsList,
     },
     data() {
@@ -56,6 +59,7 @@
         recommends: [],
         themeTopYs: [],
         getThemeTopY: null,
+        currentIndex: 0,
       }
     },
     mixins: [itemListener],
@@ -90,6 +94,7 @@
         this.themeTopYs.push(this.$refs.params.$el.offsetTop)
         this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
         this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+        this.themeTopYs.push(Number.MAX_VALUE)
         console.log(this.themeTopYs);
       },100)
     },
@@ -110,12 +115,28 @@
         this.$refs.betterScroll.scrollTo(0,-this.themeTopYs[index]+44,500)
       },
       contentScroll(position) {
-        //获取y值
-        const positionY = -position.y
+        //获取页面滚动的y值
+        const positionY = -position.y + 44
       //  positionY和主题中国的值进行对比
-        for (let i in this.themeTopYs) {
-
-          if (positionY > this.themeTopYs[i]  && positionY < this.themeTopYs[i+1]) {}
+        let length = this.themeTopYs.length
+        //方法1：直接判断4个标题和滚动的y轴距离 之间的关系，最后一个要特殊判断
+        // for (let i = 0; i < length; i++) {
+        //   // if (positionY > this.themeTopYs[i]  && positionY < this.themeTopYs[i+1]) {}
+        //   if (this.currentIndex !== i && ((i < length - 1 && positionY >= this.themeTopYs[i] && positionY <
+        //     this.themeTopYs[i+1]) || (i === length - 1 && positionY >= this.themeTopYs[i]))) {
+        //       this.currentIndex = i;
+        //       this.$refs.detailnav.currentIndex = this.currentIndex
+        //     console.log(this.currentIndex);
+        //   }
+        // }
+        //方法2：（空间换时间）
+        //     在4个标题后再加一个能使用的最大的数字，就可以让4个标题之间对应的关系使用同一个判断
+        for (let i = 0; i < length - 1; i++) {
+          if ((this.currentIndex !== i) && (i < length -1 && positionY >= this.themeTopYs[i]
+          && positionY < this.themeTopYs[i+1])) {
+            this.currentIndex = i;
+            this.$refs.detailnav.currentIndex = this.currentIndex
+          }
         }
       }
     }
