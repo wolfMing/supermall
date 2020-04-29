@@ -4,14 +4,16 @@
     <better-scroll class="content" ref="betterScroll"
                   :probeType="3" @scroll="contentScroll">
       <detail-swiper :topImages="topImages"></detail-swiper>
-      <detail-base-info :goods="goods"></detail-base-info>
+      <detail-base-info :goods="goodsInfo"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
       <detail-images-info :imagesInfo="imagesInfo" @imageLoad="imageLoad"></detail-images-info>
       <detail-param-info :paramInfo="paramInfo" ref="params"></detail-param-info>
       <detail-comment-info :commentInfo="commentInfo" ref="comment"></detail-comment-info>
       <goods-list :goods="recommends" ref="recommend"></goods-list>
     </better-scroll>
-    <detail-bottom-bar></detail-bottom-bar>
+    <!--组件上要监听原生事件，要使用native-->
+    <back-top @click.native="backTop" v-show="backTopIsShow"></back-top>
+    <detail-bottom-bar @addToCart="addToCart"></detail-bottom-bar>
   </div>
 </template>
 
@@ -28,12 +30,14 @@
   import BetterScroll from 'components/common/betterscroll/BetterScroll'
   import GoodsList from 'components/content/goods/GoodsList'
 
-  import {getDetail,getRecommend, Goods, Shop, GoodsParam} from "network/detail";
-  import {itemListener} from "common/mixin";
+  import {getDetail, getRecommend, Goods, Shop, GoodsParam} from "network/detail";
+  import {itemListener, backTopMixin} from "common/mixin";
   import {debounce} from "common/utils";
+  import store from 'store/store'
 
   export default {
     name: "Detail",
+    store,
     components: {
       DetailNavBar,
       DetailSwiper,
@@ -48,21 +52,23 @@
     },
     data() {
       return {
-        iid: null,
-        topImages: [],
-        res: null,
-        goods: {},
-        shop: {},
-        imagesInfo: {},
-        paramInfo: {},
-        commentInfo: {},
-        recommends: [],
-        themeTopYs: [],
-        getThemeTopY: null,
-        currentIndex: 0,
+        iid: null,          //商品id
+        topImages: [],      //轮播的图片
+        // res: null,         //
+        goodsInfo: {},          //
+        shop: {},           //
+        imagesInfo: {},     //
+        paramInfo: {},      //
+        commentInfo: {},    //
+        recommends: [],     //
+        themeTopYs: [],     //
+        getThemeTopY: null, //
+        currentIndex: 0      //
+        // backTopIsShow: false
       }
     },
-    mixins: [itemListener],
+
+    mixins: [itemListener, backTopMixin],
     created() {
       //保存传入的商品id
       this.iid = this.$route.params.iid
@@ -73,7 +79,7 @@
         this.topImages = res.result.itemInfo.topImages
         // console.log(data);
         //2.获取商品信息
-        this.goods = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
+        this.goodsInfo = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
         //3.获取商家信息
         this.shop = new Shop(data.shopInfo)
         //4.保存商品详情数据
@@ -138,6 +144,20 @@
             this.$refs.detailnav.currentIndex = this.currentIndex
           }
         }
+
+        this.listenerShowBackTop(position)
+      },
+      addToCart() {
+      //1.获取购物车需要展示的信息
+        const product = {}
+        product.image = this.topImages[0]
+        product.title = this.goodsInfo.title
+        product.desc = this.goodsInfo.desc
+        product.price = this.goodsInfo.newPrice
+        product.iid = this.iid
+
+      //2.将商品添加到购物车中
+        this.$store.dispatch('addCart',product)
       }
     }
   }

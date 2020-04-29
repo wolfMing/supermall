@@ -27,7 +27,7 @@
     </better-scroll>
 
     <!--组件上要监听原生事件，要使用native-->
-    <back-top @click.native="backClick" v-show="backTopIsShow"></back-top>
+    <back-top @click.native="backTop" v-show="backTopIsShow"></back-top>
   </div>
 </template>
 
@@ -40,10 +40,10 @@
   import NavBar from 'components/common/navbar/NavBar'
   import TabControl from 'components/content/tabControl/TabControl'
   import GoodsList from "../../components/content/goods/GoodsList";
-  import BackTop from "components/content/backtop/BackTop";
+  // import BackTop from "components/content/backtop/BackTop";
 
   import {getHomeMultidata,getHomeGoods} from "../../network/home"
-  import {itemListener} from "common/mixin";
+  import {itemListener, backTopMixin} from "common/mixin";
 
   export default {
     name: "home",
@@ -56,9 +56,9 @@
       TabControl,
       BetterScroll,
       GoodsList,
-      BackTop
+      // BackTop
     },
-    mixins: [itemListener],
+    mixins: [itemListener,backTopMixin],
     data() {
       return {
         banners: [],
@@ -125,13 +125,13 @@
         this.$refs.tabControl.currentIndex = index
         this.$refs.tabControlCopy.currentIndex = index
       },
-      backClick() {
-        //ref:如果是绑定在组件中的，那么通过this.$refs.refname获取到的是一个组件对象
-        this.$refs.betterScroll.scrollTo(0,0,700)
-      },
+      // backTop() {
+      //   //ref:如果是绑定在组件中的，那么通过this.$refs.refname获取到的是一个组件对象
+      //   this.$refs.betterScroll.scrollTo(0,0,700)
+      // },
       contentScroll(position) {
         //判断BackTop是否显示
-        this.backTopIsShow = (-position.y) > 1000;
+        this.listenerShowBackTop(position);
         // console.log(position);
       //  决定TabControl是否吸顶（position：fixed）
         this.isTabFixed = (-position.y) > this.tabOffsetTop
