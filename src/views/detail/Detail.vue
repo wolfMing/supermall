@@ -34,6 +34,7 @@
   import {itemListener, backTopMixin} from "common/mixin";
   import {debounce} from "common/utils";
   import store from 'store/store'
+  import {mapActions} from 'vuex'
 
   export default {
     name: "Detail",
@@ -77,7 +78,7 @@
         //1.获取顶部的图片轮播图片
         const data = res.result
         this.topImages = res.result.itemInfo.topImages
-        // console.log(data);
+        console.log(data);
         //2.获取商品信息
         this.goodsInfo = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
         //3.获取商家信息
@@ -109,6 +110,7 @@
       this.$bus.$off('itemImageLoad', this.itemImgListener)
     },
     methods: {
+      ...mapActions(['addCart']),
       imageLoad() {
         //方法1： 图片全加载完后在执行方法
         // this.$refs.betterScroll.refresh()
@@ -153,11 +155,15 @@
         product.image = this.topImages[0]
         product.title = this.goodsInfo.title
         product.desc = this.goodsInfo.desc
-        product.price = this.goodsInfo.newPrice
+        product.price = this.goodsInfo.realPrice
         product.iid = this.iid
 
       //2.将商品添加到购物车中
-        this.$store.dispatch('addCart',product)
+      //   this.$store.dispatch('addCart',product).then(res => {})
+        this.addCart(product).then(res => {
+          console.log(res);
+          this.$toast.show(res, 2000)
+        })
       }
     }
   }

@@ -18,9 +18,8 @@
 
 <style scoped>
   .check-button {
-
     border-radius: 50%;
-    border: 2px solid #aaa;
+    border: 1px solid #aaa;
   }
 
   .check {
